@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gender Reveal Party</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto}
+    .glass{backdrop-filter: blur(10px); background: rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1)}
+    .split-bg{background: linear-gradient(90deg,#6aa8ff 0 50%,#ff8ec9 50% 100%)}
+    .boy-bg{background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.25), transparent 60%), #6aa8ff}
+    .girl-bg{background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.25), transparent 60%), #ff8ec9}
+    .reveal-title{text-shadow:0 4px 20px rgba(0,0,0,.3)}
+    .big-num{font-variant-numeric: tabular-nums}
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-white">
+  <div id="app" class="max-w-5xl mx-auto p-6">
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Gender Reveal Party</h1>
+      <nav class="flex items-center gap-2 text-sm">
+        <button data-nav="home" class="px-3 py-2 rounded-xl hover:bg-white/10">Home</button>
+        <button data-nav="host" class="px-3 py-2 rounded-xl hover:bg-white/10">Host</button>
+        <button data-nav="vote" class="px-3 py-2 rounded-xl hover:bg-white/10">Join party</button>
+        <button data-nav="score" class="px-3 py-2 rounded-xl hover:bg-white/10">Vote count</button>
+      </nav>
+    </header>
+
+    <!-- Views -->
+    <section id="view-home" class="">
+      <div class="grid md:grid-cols-3 gap-4">
+        <a data-nav="host" class="glass rounded-2xl p-6 block hover:bg-white/10 transition">
+          <div class="text-xl font-bold mb-2">Host</div>
+          <p class="text-white/70">Create a party, get an invite code, control the reveal.</p>
+        </a>
+        <a data-nav="score" class="glass rounded-2xl p-6 block hover:bg-white/10 transition">
+          <div class="text-xl font-bold mb-2">Vote count</div>
+          <p class="text-white/70">Enter the invite code to show a TV-ready scoreboard.</p>
+        </a>
+        <a data-nav="vote" class="glass rounded-2xl p-6 block hover:bg-white/10 transition">
+          <div class="text-xl font-bold mb-2">Join party</div>
+          <p class="text-white/70">Join with a code, cast your vote, enjoy the reveal.</p>
+        </a>
+      </div>
+    </section>
+
+    <section id="view-host" class="hidden">
+      <div class="glass rounded-2xl p-5 mb-4">
+        <div class="flex flex-col md:flex-row md:items-end gap-4">
+          <div class="grow">
+            <label class="text-sm text-white/70">Invite code</label>
+            <div class="flex gap-2 mt-1">
+              <input id="host-code" class="w-40 px-3 py-2 rounded-xl bg-white/10" placeholder="e.g. 274915" />
+              <button id="create-party" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold">Create new</button>
+              <button id="host-connect" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-600 font-semibold">Connect</button>
+            </div>
+            <p class="text-xs text-white/60 mt-1">Share this code with guests. Use <span class="font-semibold">Vote count</span> for a big-screen scoreboard.</p>
+          </div>
+          <div class="shrink-0 text-sm text-white/70">Status: <span id="host-status">not connected</span></div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="glass rounded-2xl p-5">
+          <div class="text-sm uppercase text-white/60">Votes</div>
+          <div class="mt-3 grid grid-cols-2 gap-3">
+            <div class="rounded-xl p-4 text-center bg-sky-500/20 border border-white/10">
+              <div class="text-white/70 text-sm">Boy votes</div>
+              <div id="host-boy" class="text-4xl md:text-5xl font-extrabold big-num">0</div>
+            </div>
+            <div class="rounded-xl p-4 text-center bg-pink-500/20 border border-white/10">
+              <div class="text-white/70 text-sm">Girl votes</div>
+              <div id="host-girl" class="text-4xl md:text-5xl font-extrabold big-num">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="glass rounded-2xl p-5 md:col-span-2">
+          <div class="text-sm uppercase text-white/60 mb-2">Reveal control</div>
+          <div class="flex flex-wrap gap-3 items-center">
+            <button id="reveal-boy" class="px-4 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 font-bold">Reveal BOY</button>
+            <button id="reveal-girl" class="px-4 py-3 rounded-xl bg-pink-500 hover:bg-pink-600 font-bold">Reveal GIRL</button>
+            <button id="reset-reveal" class="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20">Reset reveal</button>
+          </div>
+          <p class="text-xs text-white/60 mt-3">When you reveal, all guest devices instantly switch to the announcement screen with matching colors.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-vote" class="hidden">
+      <div class="glass rounded-2xl p-5">
+        <div class="grid md:grid-cols-[200px_1fr] gap-4 items-end">
+          <div>
+            <label class="text-sm text-white/70">Invite code</label>
+            <input id="join-code" class="w-full px-3 py-2 rounded-xl bg-white/10" placeholder="enter code" />
+          </div>
+          <div class="flex gap-3">
+            <button id="join-connect" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-600 font-semibold">Join</button>
+            <div class="text-sm text-white/70 self-center">Status: <span id="join-status">not connected</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <button id="vote-boy" class="rounded-2xl p-10 text-center boy-bg font-extrabold text-3xl disabled:opacity-40">I vote BOY</button>
+        <button id="vote-girl" class="rounded-2xl p-10 text-center girl-bg font-extrabold text-3xl disabled:opacity-40">I vote GIRL</button>
+      </div>
+
+      <div id="guest-reveal" class="hidden mt-6 rounded-2xl p-14 text-center font-extrabold text-5xl reveal-title"></div>
+      <p id="already-voted" class="hidden mt-4 text-center text-emerald-400 font-semibold">Vote recorded on this device ✅</p>
+    </section>
+
+    <section id="view-score" class="hidden">
+      <div class="rounded-2xl overflow-hidden split-bg min-h-[60vh] md:min-h-[70vh] border border-white/10">
+        <div class="grid grid-cols-2">
+          <div class="p-6 md:p-10 text-center">
+            <div class="text-lg md:text-2xl font-bold drop-shadow">Boy votes</div>
+            <div id="score-boy" class="mt-3 text-6xl md:text-8xl font-extrabold big-num drop-shadow">0</div>
+          </div>
+          <div class="p-6 md:p-10 text-center">
+            <div class="text-lg md:text-2xl font-bold drop-shadow">Girl votes</div>
+            <div id="score-girl" class="mt-3 text-6xl md:text-8xl font-extrabold big-num drop-shadow">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-5 mt-4">
+        <div class="grid md:grid-cols-[200px_1fr] gap-4 items-end">
+          <div>
+            <label class="text-sm text-white/70">Invite code</label>
+            <input id="score-code" class="w-full px-3 py-2 rounded-xl bg-white/10" placeholder="enter code" />
+          </div>
+          <div class="flex gap-3">
+            <button id="score-connect" class="px-4 py-2 rounded-xl bg-fuchsia-500 hover:bg-fuchsia-600 font-semibold">Show scoreboard</button>
+            <div class="text-sm text-white/70 self-center">Status: <span id="score-status">not connected</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Reveal full-screen overlay (for TV if desired) -->
+  <div id="reveal-overlay" class="fixed inset-0 hidden items-center justify-center text-center text-white">
+    <div class="max-w-3xl mx-auto p-8">
+      <div id="reveal-text" class="text-5xl md:text-7xl font-extrabold reveal-title"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    // 1) CONFIGURE SUPABASE
+    const SUPABASE_URL = "https://YOUR-PROJECT-REF.supabase.co"; // <--- replace
+    const SUPABASE_ANON_KEY = "YOUR-ANON-KEY"; // <--- replace
+
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // 2) QUICK DOM HELPERS
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+    function show(id){ $$('#app section').forEach(s => s.id===id ? s.classList.remove('hidden') : s.classList.add('hidden')); }
+
+    // 3) NAV
+    $$('#app [data-nav]').forEach(btn => btn.addEventListener('click', () => show('view-' + btn.dataset.nav)));
+    show('view-home');
+
+    // 4) STATE
+    let channel = null; // realtime channel for current party
+    let partyCode = null;
+    let counts = { boy: 0, girl: 0 };
+
+    // Persistent device id for one-vote-per-device
+    const DEVICE_KEY = 'gr_device_id';
+    let deviceId = localStorage.getItem(DEVICE_KEY);
+    if (!deviceId) { deviceId = crypto.randomUUID(); localStorage.setItem(DEVICE_KEY, deviceId); }
+
+    // 5) UTILITIES
+    const randCode = () => String(Math.floor(100000 + Math.random()*900000));
+    function updateCountsUI() {
+      $('#host-boy').textContent = counts.boy;
+      $('#host-girl').textContent = counts.girl;
+      $('#score-boy').textContent = counts.boy;
+      $('#score-girl').textContent = counts.girl;
+    }
+
+    function setAlreadyVotedUI(choice){
+      if (!choice) return;
+      $('#already-voted').classList.remove('hidden');
+      $('#vote-boy').disabled = true; $('#vote-girl').disabled = true;
+      if (choice === 'boy') { $('#vote-boy').textContent = 'Voted BOY ✅'; }
+      if (choice === 'girl') { $('#vote-girl').textContent = 'Voted GIRL ✅'; }
+    }
+
+    // 6) REALTIME WIRING
+    function bindRealtime(code){
+      if (channel) { try { channel.unsubscribe(); } catch(e){} }
+      partyCode = code;
+      channel = sb.channel(`party:${code}`, { config: { broadcast: { ack: true } } });
+
+      // Vote messages increment counts live
+      channel.on('broadcast', { event: 'vote' }, ({ payload }) => {
+        if (payload.choice === 'boy') counts.boy++; else if (payload.choice === 'girl') counts.girl++;
+        updateCountsUI();
+      });
+
+      // Sync counts (e.g., scoreboard joining late)
+      channel.on('broadcast', { event: 'syncCounts' }, ({ payload }) => {
+        counts = payload.counts || counts; updateCountsUI();
+      });
+
+      // Reveal event
+      channel.on('broadcast', { event: 'reveal' }, ({ payload }) => {
+        const gender = payload.gender; // 'boy' | 'girl' | null
+        showGuestReveal(gender);
+      });
+
+      channel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          // send an initial sync request (host may respond)
+          channel.send({ type: 'broadcast', event: 'needCounts', payload: {} });
+        }
+      });
+    }
+
+    // 7) HOST UI
+    $('#create-party').addEventListener('click', async () => {
+      const code = randCode();
+      $('#host-code').value = code;
+
+      // Create party row & reset counts in DB
+      await sb.from('parties').upsert({ code, reveal_gender: null }).select();
+      await sb.from('votes').delete().eq('code', code); // in case reusing code
+
+      counts = { boy: 0, girl: 0 }; updateCountsUI();
+      bindRealtime(code);
+      $('#host-status').textContent = `party ${code} created`;
+
+      wireHostSync();
+    });
+
+    $('#host-connect').addEventListener('click', async () => {
+      const code = $('#host-code').value.trim();
+      if (!code) return;
+      // Fetch initial aggregate counts from DB
+      const { data: rows } = await sb.from('votes').select('choice').eq('code', code);
+      counts = { boy: 0, girl: 0 };
+      (rows||[]).forEach(r => { if (r.choice==='boy') counts.boy++; else if (r.choice==='girl') counts.girl++; });
+      updateCountsUI();
+      bindRealtime(code);
+      $('#host-status').textContent = `connected to ${code}`;
+
+      wireHostSync();
+    });
+
+    $('#reveal-boy').addEventListener('click', async () => {
+      if (!partyCode) return;
+      await sb.from('parties').upsert({ code: partyCode, reveal_gender: 'boy' });
+      channel.send({ type: 'broadcast', event: 'reveal', payload: { gender: 'boy' } });
+      fullScreenReveal('boy');
+    });
+
+    $('#reveal-girl').addEventListener('click', async () => {
+      if (!partyCode) return;
+      await sb.from('parties').upsert({ code: partyCode, reveal_gender: 'girl' });
+      channel.send({ type: 'broadcast', event: 'reveal', payload: { gender: 'girl' } });
+      fullScreenReveal('girl');
+    });
+
+    $('#reset-reveal').addEventListener('click', async () => {
+      if (!partyCode) return;
+      await sb.from('parties').upsert({ code: partyCode, reveal_gender: null });
+      channel.send({ type: 'broadcast', event: 'reveal', payload: { gender: null } });
+      hideFullScreenReveal();
+    });
+
+    // When host receives a needCounts, broadcast current counts
+    function wireHostSync(){
+      if (!channel) return;
+      channel.on('broadcast', { event: 'needCounts' }, () => {
+        channel.send({ type: 'broadcast', event: 'syncCounts', payload: { counts } });
+      });
+    }
+
+    // 8) JOIN (GUEST) UI
+    $('#join-connect').addEventListener('click', async () => {
+      const code = $('#join-code').value.trim();
+      if (!code) return;
+      bindRealtime(code);
+      $('#join-status').textContent = `connected to ${code}`;
+
+      // Check if reveal already set in DB and show immediately
+      const { data: party } = await sb.from('parties').select('reveal_gender').eq('code', code).maybeSingle();
+      if (party && party.reveal_gender) showGuestReveal(party.reveal_gender);
+
+      // Check if this device already voted in this party
+      const { data: existing } = await sb.from('votes')
+        .select('choice').eq('code', code).eq('device_id', deviceId).maybeSingle();
+      if (existing) setAlreadyVotedUI(existing.choice);
+    });
+
+    $('#vote-boy').addEventListener('click', async () => {
+      if (!partyCode) return;
+      const { error } = await sb.from('votes').insert({ code: partyCode, choice: 'boy', device_id: deviceId });
+      if (!error) {
+        channel.send({ type: 'broadcast', event: 'vote', payload: { choice: 'boy' } });
+        setAlreadyVotedUI('boy');
+      } else {
+        handleVoteError(error);
+      }
+    });
+
+    $('#vote-girl').addEventListener('click', async () => {
+      if (!partyCode) return;
+      const { error } = await sb.from('votes').insert({ code: partyCode, choice: 'girl', device_id: deviceId });
+      if (!error) {
+        channel.send({ type: 'broadcast', event: 'vote', payload: { choice: 'girl' } });
+        setAlreadyVotedUI('girl');
+      } else {
+        handleVoteError(error);
+      }
+    });
+
+    function handleVoteError(error){
+      // 23505 is Postgres unique_violation
+      if (error && (error.code === '23505' || (error.message||'').toLowerCase().includes('duplicate'))) {
+        $('#already-voted').classList.remove('hidden');
+        $('#vote-boy').disabled = true; $('#vote-girl').disabled = true;
+      } else {
+        alert('Vote failed. Please try again.');
+        console.error(error);
+      }
+    }
+
+    function disableVotingButtons(){
+      $('#vote-boy').disabled = true; $('#vote-girl').disabled = true;
+    }
+
+    function showGuestReveal(gender){
+      const box = $('#guest-reveal');
+      if (gender === 'boy') {
+        box.classList.remove('hidden'); box.textContent = "It's a BOY!!!"; box.classList.remove('girl-bg'); box.classList.add('boy-bg');
+      } else if (gender === 'girl') {
+        box.classList.remove('hidden'); box.textContent = "It's a GIRL!!!"; box.classList.remove('boy-bg'); box.classList.add('girl-bg');
+      } else {
+        box.classList.add('hidden');
+      }
+    }
+
+    // 9) SCOREBOARD UI
+    $('#score-connect').addEventListener('click', async () => {
+      const code = $('#score-code').value.trim();
+      if (!code) return;
+      bindRealtime(code);
+      $('#score-status').textContent = `connected to ${code}`;
+
+      // Fetch initial aggregate counts
+      const { data: rows } = await sb.from('votes').select('choice').eq('code', code);
+      counts = { boy: 0, girl: 0 };
+      (rows||[]).forEach(r => { if (r.choice==='boy') counts.boy++; else if (r.choice==='girl') counts.girl++; });
+      updateCountsUI();
+
+      // Ask host for a fresh sync (if present)
+      channel.send({ type: 'broadcast', event: 'needCounts', payload: {} });
+    });
+
+    // 10) NICE-TO-HAVES: Full-screen reveal for Host/Scoreboard
+    function fullScreenReveal(gender){
+      const overlay = $('#reveal-overlay');
+      const text = $('#reveal-text');
+      overlay.classList.remove('hidden'); overlay.classList.add(gender==='boy' ? 'boy-bg' : 'girl-bg', 'flex');
+      overlay.classList.remove(gender==='boy' ? 'girl-bg' : 'boy-bg');
+      text.textContent = gender==='boy' ? "It's a BOY!!!" : "It's a GIRL!!!";
+      sparkle();
+    }
+    function hideFullScreenReveal(){
+      const overlay = $('#reveal-overlay');
+      overlay.classList.add('hidden'); overlay.classList.remove('flex','boy-bg','girl-bg');
+      $('#reveal-text').textContent = '';
+    }
+
+    function sparkle(){
+      for (let i=0;i<120;i++) {
+        const s = document.createElement('div');
+        s.style.position='fixed'; s.style.pointerEvents='none';
+        s.style.left = Math.random()*100+'vw';
+        s.style.top = '-5vh';
+        s.style.width = s.style.height = (6+Math.random()*8)+'px';
+        s.style.background = i%2? '#6aa8ff' : '#ff8ec9';
+        s.style.opacity = '.9'; s.style.borderRadius='2px';
+        s.style.transform = `rotate(${Math.random()*360}deg)`;
+        s.style.transition = 'transform 2.2s cubic-bezier(.1,.8,.2,1), top 2.2s ease-in';
+        document.body.appendChild(s);
+        requestAnimationFrame(()=>{
+          s.style.top = '110vh';
+          s.style.transform += ` translateY(${80+Math.random()*40}vh)`;
+        });
+        setTimeout(()=>s.remove(),2400);
+      }
+    }
+  </script>
+</body>
+</html>
